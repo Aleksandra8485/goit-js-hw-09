@@ -10,8 +10,8 @@ const dateInput = document.querySelector('#datetime-picker');
 const startBtn = document.querySelector('[data-start]');
 const resetBtn = document.querySelector('[data-reset]');
 
-// ręczne wyłączenie przycisku resetu na początku działania skryptu
-disableResetButton();
+// // ręczne wyłączenie przycisku resetu na początku działania skryptu
+// disableResetButton();
 
 // pobieramy minutnik, dla dni,godzin, minut, sekund
 const daysEl = document.querySelector('[data-days]');
@@ -51,16 +51,15 @@ const options = {
       });
     }
   },
-
-  // funkcje pomocnicze do wyłączania i włączania przycisku resetu
-function disableResetButton() {
-    resetBtn.disabled = true;
-  }
-  
-  function enableResetButton() {
-    resetBtn.disabled = false;
-  }
 };
+//   // funkcje pomocnicze do wyłączania i włączania przycisku resetu
+// function disableResetButton() {
+//     resetBtn.disabled = true;
+//   }
+
+//   function enableResetButton() {
+//     resetBtn.disabled = false;
+//   }
 
 // odliczanie
 function startCountdown(endDate) {
