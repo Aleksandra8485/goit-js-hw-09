@@ -1,128 +1,104 @@
-import Notiflix from 'notiflix';
-// Importujemy bibliotekę flatpickr
+// importowanie bibliotek
 import flatpickr from 'flatpickr';
-// Importujemy styl CSS biblioteki flatpickr
-import 'flatpickr/dist/flatpickr.min.css';
+import 'flatpickr/dist/flatpickr.min.css'; // importuje plik Css dla biblioteki flatpickr
+import Notiflix from 'notiflix';
 
-//dostep do input w ktorym wybierana jest data i godzina
-const dateInput = document.querySelector('#datetime-picker');
-// dostęp do BTN
+// pobieram dostep do inputa
+const dateInput = document.getElementById('datetime-picker');
+
+// pobieram dostep do BTN-ów
 const startBtn = document.querySelector('[data-start]');
 const resetBtn = document.querySelector('[data-reset]');
 
-// // ręczne wyłączenie przycisku resetu na początku działania skryptu
-// disableResetButton();
-
-// pobieramy minutnik, dla dni,godzin, minut, sekund
+// pobieram dostępu do minutnika, dzień/godzina/minuta/sekunda
 const daysEl = document.querySelector('[data-days]');
 const hoursEl = document.querySelector('[data-hours]');
 const minutesEl = document.querySelector('[data-minutes]');
 const secondsEl = document.querySelector('[data-seconds]');
 
-// Zmienna przechowująca identyfikator interwału dla licznika
-let countdownInterval;
+// zmienna przechowyjaca wybraną datę
+let selectedDate;
 
-// ustawienia flatpickr
-// metoda onClose tu część obiektu,wywołana kiedy użytkownik zamknie wybieranie daty
-const options = {
-  enableTime: true,
-  time_24hr: true,
-  defaultDate: new Date(),
-  minuteIncrement: 1,
-  onClose(selectedDates) {
-    console.log(selectedDates[0]);
+// ustawia przycisk resetu na nieaktywny przy uruchomieniu minutnika
+resetBtn.disabled = true;
 
-    //dopisana cześć kodu
-    const date = new Date();
-    const selectedDate = selectedDates[0];
-
-    // jeśli selectedData jest z przeszłosci/ mniejsza od date
-    // wyświetl window.alert()  i zablokuj startBtn
-
-    if (selectedDate <= date) {
-      window.alert('Please choose a date in the future');
-      startBtn.disabled = true;
-      disableResetButton(); // ręczne wyłączenie przycisku resetu
-    } else {
-      startBtn.disabled = false;
-      enableResetButton(); // ręczne włączenie przycisku resetu
-      startBtn.addEventListener('click', () => {
-        startCountdown(selectedDate);
-      });
-    }
-  },
-};
-//   // funkcje pomocnicze do wyłączania i włączania przycisku resetu
-// function disableResetButton() {
-//     resetBtn.disabled = true;
-//   }
-
-//   function enableResetButton() {
-//     resetBtn.disabled = false;
-//   }
-
-// odliczanie
-function startCountdown(endDate) {
-  clearInterval(countdownInterval); // czyszczenie  countdownInterval
-  //nowy interwał
-  countdownInterval = setInterval(() => {
-    const timeRemaining = convertMs(endDate - new Date());
-    if (timeRemaining < 0) {
-      clearInterval(countdownInterval);
-      daysEl.textContent = '00';
-      hoursEl.textContent = '00';
-      minutesEl.textContent = '00';
-      secondsEl.textContent = '00';
-    } else {
-      daysEl.textContent = timeRemaining.days;
-      hoursEl.textContent = timeRemaining.hours;
-      minutesEl.textContent = timeRemaining.minutes;
-      secondsEl.textContent = timeRemaining.seconds;
-    }
-  }, 1000);
-}
-
-// Obliczenie dni, godzin, minut i sekund, kod obliczanie ile czasu pozostało do wybranej daty i godziny
-// kod z zadania
-function convertMs(ms) {
-  // Number of milliseconds per unit of time
+// funkcja konwertująca milisekundy na pozostały czas
+const convertMs = ms => {
   const second = 1000;
   const minute = second * 60;
   const hour = minute * 60;
   const day = hour * 24;
 
-  // Remaining days/pozostałe dni
   const days = Math.floor(ms / day);
-  // Remaining hours
   const hours = Math.floor((ms % day) / hour);
-  // Remaining minutes
   const minutes = Math.floor(((ms % day) % hour) / minute);
-  // Remaining seconds
   const seconds = Math.floor((((ms % day) % hour) % minute) / second);
 
   return { days, hours, minutes, seconds };
-}
+};
 
-console.log(convertMs(2000)); // {days: 0, hours: 0, minutes: 0, seconds: 2}
-console.log(convertMs(140000)); // {days: 0, hours: 0, minutes: 2, seconds: 20}
-console.log(convertMs(24140000)); // {days: 0, hours: 6 minutes: 42, seconds: 20}
+// funkcja dodająca zero przed liczbami jednocyfrowych
+const addLeadingZero = value => {
+  return value.toString().padStart(2, '0');
+};
 
-// metoda toString przekształca liczby el na string
-// metoda padStart dodaje 0 przed 1-cyfrowymi liczbami
-function addLeadingZero(el) {
-  return el.toString().padStart(2, '0');
-}
+// ustawienia bibiloteki flatpickr
+const options = {
+  enableTime: true, //właczenie czasu
+  time_24hr: true, //format 24-godzinny
+  defaultDate: new Date(), // ustawienie daty początkowej na dzisiejszą
+  minuteIncrement: 1, //inkrementacja/wzrost minut co 1 minutę
+  //funkcja zwrotna wywoływana po zamknięciu kalendarza sprawdzajaca czy wybrana data jest datą z przyszłości
+  onClose(selectedDates) {
+    console.log(selectedDates[0]);
+    const date = new Date();
+    selectedDate = selectedDates[0].getTime();
+    selectedDate < date.getTime()
+      ? Notiflix.Report.failure('Wybierz date w przyszłości!')
+      : startBtn.removeAttribute('disabled'); //ustawia przycisk Start na aktywny
+  },
+};
 
-// 2 wersja odliczania czasu?
-// const startCountdown = () => {
-//   const remainingTime = convertMs(selectedDate - new Date());
-//   if (selectedDate - new Date() > 0) {
-//     daysEl.textContent = addLeadingZero(remainingTime.days);
-//     hoursEl.textContent = addLeadingZero(remainingTime.hours);
-//     minutesEl.textContent = addLeadingZero(remainingTime.minutes);
-//     secondsEl.textContent = addLeadingZero(remainingTime.seconds);
-//   }
-// };
+// funkcja zeruje minutnik , wybrana wartosc w selectedDate i ustawia na "00"
+const countdownResetTime = () => {
+  selectedDate = null;
+  secondsEl.textContent = '00';
+  minutesEl.textContent = '00';
+  hoursEl.textContent = '00';
+  daysEl.textContent = '00';
+};
+
+// funcja pobiera aktualny czas i odejmuje od wybranej daty =oblicza pozostały czas
+const countdownStartTime = () => {
+  if (!selectedDate) {
+    return;
+  }
+  const leftTime = convertMs(selectedDate - new Date());
+  if (selectedDate - new Date() > 0) {
+    secondsEl.textContent = addLeadingZero(leftTime.seconds);
+    minutesEl.textContent = addLeadingZero(leftTime.minutes);
+    hoursEl.textContent = addLeadingZero(leftTime.hours);
+    daysEl.textContent = addLeadingZero(leftTime.days);
+  } else {
+    countdownResetTime();
+  }
+};
+
+// callback/funkcja zwrotna dla przycisku start
+startBtn.addEventListener('click', () => {
+  setInterval(countdownStartTime, 1000); // ustawia interwał (setInterval)który co sekundę wywołuje funkcję countdownStartTime()/wartości wyświetlanych liczników
+  startBtn.disabled = true; // dezaktywuje przycisk "Start"
+  resetBtn.disabled = false; // aktywuje przycisk "Reset"
+  dateInput.disabled = true; // dezaktywuje pole wyboru daty (dateInput)
+});
+//  callback dla przycisku reset
+resetBtn.addEventListener('click', () => {
+  dateInput._flatpickr.clear(); // metoda _flatpickr.clear()-resetuje pole wyboru
+  countdownResetTime(); // funkcja resetuje liczniki, przywraca pierwotny stan przycisków
+  startBtn.disabled = false;
+  resetBtn.disabled = true;
+  dateInput.disabled = false;
+});
 
 // inicjalizacja flatpickr
 flatpickr(dateInput, options);
