@@ -1,5 +1,6 @@
 const startBtn = document.querySelector('[data-start]');
 const stopBtn = document.querySelector('[data-stop]');
+let intervalID;
 
 // Funkcja generująca losowy kolor w formacie heksadecymelowym z zadania
 function getRandomHexColor() {
@@ -14,14 +15,14 @@ function changeColor() {
 // Działanie Start raz na sekunde zmienia kolor tło,
 // Start zostaje zablokowany poprzez ustawienie atrybutu disabled na true
 function changerColor() {
-  changeEl = setInterval(changeColor, 1000);
+  intervalID = setInterval(changeColor, 1000);
   startBtn.disabled = true;
   stopBtn.disabled = false;
 }
 
 // Działanie Stop
 function changerColorStop() {
-  clearInterval(changeEl);
+  clearInterval(intervalID);
   startBtn.disabled = false;
   stopBtn.disabled = true;
 }
