@@ -81,6 +81,7 @@ const countdownStartTime = () => {
     daysEl.textContent = addLeadingZero(leftTime.days);
   } else {
     countdownResetTime();
+    Notiflix.Notify.success('Countdown ended!');
   }
 };
 
