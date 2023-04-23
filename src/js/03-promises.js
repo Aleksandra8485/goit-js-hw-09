@@ -44,7 +44,7 @@ async function myPromise(amount, step, time, current = 1) {
   // funcja myPromise wywoływana jest rekurencyjnie/przez samą siebie
   // ze zwiększoną wartością current, aż current przekroczy ammount
   time += step;
-  setTimeout(() => myPromise(amount, step, time, current + 1), step);
+  setTimeout(() => myPromise(amount, step, time, current + 1), time);
 }
 
 // wywołanie funkcji myPromise po kliknięciu submitBtn
@@ -56,5 +56,6 @@ submitBtn.addEventListener('click', function (event) {
   const { value: amount } = amountEl;
   const { value: step } = stepEl;
   const { value: delay } = delayEl;
-  setTimeout(() => myPromise(+amount, +step, +delay), +delay);
+  // setTimeout(() => myPromise(+amount, +step, +delay), +delay);
+  let time = +delay;
 });
