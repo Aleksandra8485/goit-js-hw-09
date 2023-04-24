@@ -56,6 +56,6 @@ submitBtn.addEventListener('click', function (event) {
   const { value: amount } = amountEl;
   const { value: step } = stepEl;
   const { value: delay } = delayEl;
-  // setTimeout(() => myPromise(+amount, +step, +delay), +delay);
+  setTimeout(() => myPromise(+amount, +step, +delay), +delay);
   let time = +delay;
 });
