@@ -8,7 +8,8 @@ const amountEl = document.querySelector('input[name=amount]');
 const submitBtn = document.querySelector('button[type=submit]');
 
 // funkcja createPromise zwraca nową obietnicę
-function createPromise(position, delay) {
+// dodanie time aby delay się przesuwał zgodnie z wytycznymi zadania
+function createPromise(position, delay, time) {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
       const shouldResolve = Math.random() > 0.3;
@@ -17,7 +18,7 @@ function createPromise(position, delay) {
       } else {
         reject(`❌ Rejected promise ${position} in ${delay}ms`);
       }
-    }, delay);
+    }, time + delay);
   });
 }
 
@@ -43,8 +44,17 @@ async function myPromise(amount, step, time, current = 1) {
   // po każdej wykonanej obietnicy time zwiększa się o step
   // funcja myPromise wywoływana jest rekurencyjnie/przez samą siebie
   // ze zwiększoną wartością current, aż current przekroczy ammount
-  time += step;
-  setTimeout(() => myPromise(amount, step, time, current + 1), time);
+
+  // to raczej do usunięcia
+  //   time += step;
+  //   setTimeout(() => myPromise(amount, step, time, current + 1), time);
+  // }
+
+  // zmienna, która przechowuje sumaryczny czas opóźnienia
+  // czas od rozpoczęcia działania funkcji myPromise
+  // dodanie wartości" step" aby kolejne obietnice były tworzone po upływie właściwej ilości czasu
+  const totalDelay = time + (current - 1) * step;
+  setTimeout(() => myPromise(amount, step, time, current + 1), totalDelay);
 }
 
 // wywołanie funkcji myPromise po kliknięciu submitBtn
