@@ -8,64 +8,38 @@ const amountEl = document.querySelector('input[name=amount]');
 const submitBtn = document.querySelector('button[type=submit]');
 
 // funkcja createPromise zwraca nową obietnicę
-// dodanie time aby delay się przesuwał zgodnie z wytycznymi zadania
-function createPromise(position, delay, time) {
+function createPromise(position, delay) {
   return new Promise((resolve, reject) => {
+    const shouldResolve = Math.random() > 0.3;
+
     setTimeout(() => {
-      const shouldResolve = Math.random() > 0.3;
       if (shouldResolve) {
-        resolve(`✅ Fulfilled promise ${position} in ${delay}ms`);
+        resolve({ position, delay });
       } else {
-        reject(`❌ Rejected promise ${position} in ${delay}ms`);
+        reject({ position, delay });
       }
-    }, time + delay);
+    }, delay);
   });
 }
 
-// funkcja asynchroniczna myPromise- tworząca wiele obietnic dzięki createPromise
-// wykonana tyle razy ile podane w amount
-// step i time-określają różnicę czasową między kolejnymi obietnicami i czas, w którym zostanie utworzona pierwsza obietnica
-// domyślnie/current ustawione są na 1.
-async function myPromise(amount, step, time, current = 1) {
-  if (current > amount) return;
-
-  // try...catch
-  // Najpierw wykonywany jest kod wewnątrz bloku try.
-  // Jeśli nie ma błędów, blok catch jest ignorowany, a interpreter idzie dalej.
-  // Jeśli w bloku try wystąpi błąd, jego wykonanie zostaje zatrzymane, a interpreter przejdzie do bloku catch.
-  // try-catch, obsługuje wynik każdej obietnicy
-  // wyświetla powiadomienia Notiflix w zależności od wyniku
-  try {
-    const success = await createPromise(current, time);
-    Notiflix.Notify.success(success);
-  } catch (error) {
-    Notiflix.Notify.failure(error);
+async function myPromise(amount, step, delay) {
+  for (let i = 1; i <= amount; i++) {
+    createPromise(i, delay + step * (i - 1))
+      .then(({ position, delay }) => {
+        Notiflix.Notify.success(`Fulfilled promise ${position} in ${delay}ms`);
+      })
+      .catch(({ position, delay }) => {
+        Notiflix.Notify.failure(`Rejected promise ${position} in ${delay}ms`);
+      });
   }
-  // po każdej wykonanej obietnicy time zwiększa się o step
-  // funcja myPromise wywoływana jest rekurencyjnie/przez samą siebie
-  // ze zwiększoną wartością current, aż current przekroczy ammount
-
-  // to raczej do usunięcia
-  //   time += step;
-  //   setTimeout(() => myPromise(amount, step, time, current + 1), time);
-  // }
-
-  // zmienna, która przechowuje sumaryczny czas opóźnienia
-  // czas od rozpoczęcia działania funkcji myPromise
-  // dodanie wartości" step" aby kolejne obietnice były tworzone po upływie właściwej ilości czasu
-  const totalDelay = time + (current - 1) * step;
-  setTimeout(() => myPromise(amount, step, time, current + 1), totalDelay);
 }
 
-// wywołanie funkcji myPromise po kliknięciu submitBtn
-// funkcja myPromise wywoława z wartościami amount, step i delay jako parametrami
-// amount, step i delay-pobrane z formularza (zmienne na górze)
-// delay- opóźnienie czasowe przed rozpoczęciem wykonywanie myPromise
 submitBtn.addEventListener('click', function (event) {
   event.preventDefault();
+
   const { value: amount } = amountEl;
   const { value: step } = stepEl;
   const { value: delay } = delayEl;
-  setTimeout(() => myPromise(+amount, +step, +delay), +delay);
-  let time = +delay;
+
+  myPromise(Number(amount), Number(step), Number(delay));
 });
